@@ -1,0 +1,41 @@
+import pprint
+import requests
+import time
+import winsound
+from datetime import datetime
+
+now = datetime.now()
+age = int(input("Enter Age :"))
+pincode = input("Enter Pincode : " )
+date = now.strftime("%d-%m-%y")
+print("\n\n\n\n\n")
+
+        
+while True:
+
+    URL = "https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByPin?pincode={}&date={}".format(pincode,date)
+    header = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36'} 
+    result = requests.get(URL, headers=header)
+    
+    if result.status_code == 200 :
+        response = result.json()
+        data = list(response['centers'])
+        pp = pprint.PrettyPrinter(indent=4)
+        for i in range(len(data)):
+            session = data[i]['sessions']
+            
+            if session[0]['available_capacity'] >= 0 and session[0]['min_age_limit'] == age:
+                pp.pprint(data[i]['name'])
+                pp.pprint(session[0]['available_capacity'])
+                pp.pprint(session[0]['date'])
+                print()
+            elif session[0]['available_capacity'] > 0:
+                winsound.Beep(500,1000)
+
+    else:
+        print("Server is having some technical problems.")
+    
+    
+    print("\nREFRESH!\n\n\n\n\n")
+    
+    time.sleep(3)
